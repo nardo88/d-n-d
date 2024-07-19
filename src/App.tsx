@@ -19,9 +19,8 @@ function App() {
     setIsDragging(index)
     const container = containerRef.current as HTMLDivElement
     const items = [...container.childNodes] as HTMLDivElement[]
-    console.log('items: ', items)
     const dragItem = items[index] as HTMLDivElement
-    const itemsBelowDragItem = items.splice(index + 1) as HTMLDivElement[]
+    const itemsBelowDragItem = [...items].splice(index + 1) as HTMLDivElement[]
 
     // получение геометрии выбранного элемента
     const dragBoundingRect = dragItem.getBoundingClientRect()
@@ -64,8 +63,10 @@ function App() {
       // @ts-ignore
       dragItem.style = {}
       container.removeChild(div)
-      // @ts-ignore
-      items.forEach((item) => (item.style = {}))
+      items.forEach((item) => {
+        // @ts-ignore
+        item.style.transform = 'none'
+      })
     }
   }
 
