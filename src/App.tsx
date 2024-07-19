@@ -1,4 +1,4 @@
-import { PointerEvent, useRef, useState } from 'react'
+import { PointerEvent, PointerEventHandler, useRef, useState } from 'react'
 import './App.scss'
 import { available } from './data'
 import image from './assets/boy.svg'
@@ -21,6 +21,9 @@ function App() {
     const items = [...container.childNodes] as HTMLDivElement[]
     const dragItem = items[index] as HTMLDivElement
     const itemsBelowDragItem = [...items].splice(index + 1) as HTMLDivElement[]
+    const notDragItems = [...items].filter((_, i) => i !== index)
+    const dragData = data[index]
+    let newData = [...data]
 
     // получение геометрии выбранного элемента
     const dragBoundingRect = dragItem.getBoundingClientRect()
@@ -47,18 +50,54 @@ function App() {
     div.style.pointerEvents = 'none'
     container.appendChild(div)
 
-    // Движение элемента
     const distance = dragBoundingRect.height + space
 
     itemsBelowDragItem.forEach((item) => {
       item.style.transform = `translateY(${distance}px)`
     })
+    // Движение элемента
+    let x = e.clientX
+    let y = e.clientY
+
+    document.onpointermove = dragMove as any
+
+    function dragMove(e: PointerEvent) {
+      const posX = e.clientX - x
+      const posY = e.clientY - y
+
+      // меняем позицию выбранного элемента
+      dragItem.style.transform = `translate(${posX}px, ${posY}px)`
+
+      //
+      notDragItems.forEach((item) => {
+        const rect1 = dragItem.getBoundingClientRect()
+        const rect2 = item.getBoundingClientRect()
+
+        let isOverlapping =
+          rect1.y < rect2.y + rect2.height / 2 &&
+          rect1.y + rect1.height / 2 > rect2.y
+
+        if (isOverlapping) {
+          if (item.getAttribute('style')) {
+            item.style.transform = ''
+            index++
+          } else {
+            item.style.transform = `translateY(${distance}px)`
+            index--
+          }
+          newData = newData.filter((item) => item.id !== dragData.id)
+          newData.splice(index, 0, dragData)
+        }
+      })
+    }
 
     // Отпускаем кнопку мыши
     document.onpointerup = dragEnd
 
     function dragEnd() {
-      document.onpointerup
+      document.onpointerup = null
+      document.onpointermove = null
+
       setIsDragging(null)
       // @ts-ignore
       dragItem.style = {}
@@ -67,6 +106,7 @@ function App() {
         // @ts-ignore
         item.style.transform = 'none'
       })
+      setData(newData)
     }
   }
 

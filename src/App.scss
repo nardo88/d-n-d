@@ -24,6 +24,8 @@ body {
   flex-direction: column;
   background: #fefddf;
   border-radius: 10px;
+  touch-action: none;
+  -ms-touch-action: none;
 }
 
 .card {
