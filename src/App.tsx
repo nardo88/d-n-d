@@ -22,7 +22,7 @@ function App() {
     const dragItem = items[index] as HTMLDivElement
     const itemsBelowDragItem = [...items].splice(index + 1) as HTMLDivElement[]
     const notDragItems = [...items].filter((_, i) => i !== index)
-    const dragData = data[index]
+    const dragData = [...data][index]
     let newData = [...data]
 
     // получение геометрии выбранного элемента
@@ -104,7 +104,7 @@ function App() {
       container.removeChild(div)
       items.forEach((item) => {
         // @ts-ignore
-        item.style.transform = 'none'
+        item.style.transform = ''
       })
       setData(newData)
     }
